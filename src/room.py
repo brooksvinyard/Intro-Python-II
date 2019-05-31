@@ -14,7 +14,8 @@ class Room:
                 n_to=None,
                 s_to=None,
                 e_to=None,
-                w_to=None
+                w_to=None,
+                items=None
     ):
         self.name = name
         self.description = description
@@ -22,6 +23,21 @@ class Room:
         self.s_to = s_to
         self.e_to = e_to
         self.w_to = w_to
+        self.items = []
 
     def __str__(self):
         return (f'{self.name.lower()}')
+
+    def removeItem(self, itemObj):
+        for i in self.items:
+            if i.name == itemObj.name:
+                self.items.remove(itemObj)
+                return i
+        return None
+
+    def addItem(self, itemObj):
+        for i in self.items:
+            if i.name == itemObj.name:
+                self.items.append(itemObj)
+                return i
+        return None

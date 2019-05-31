@@ -1,6 +1,7 @@
 from room import Room
 from player import Player
 from art import art
+from item import Item
 
 # Declare all the rooms
 
@@ -35,15 +36,50 @@ room['narrow'].w_to = room['foyer']
 room['narrow'].n_to = room['treasure']
 room['treasure'].s_to = room['narrow']
 
+# Declare all the items
+itemDict = {
+    'rock': Item("Rock", """Normal looking rock""", 'outside'),
+    'bone': Item("Bone", """Looks like a bone.""", 'narrow'),
+    'stick': Item("Stick", """This stick might come in handy?""", 'overlook'),
+    'sword': Item("Sword", """A rusty sword. Maybe you can use it?""", 'foyer'),
+    'key': Item("Key", """A rusty old key that was used to open the treasure.""", 'treasure'),
+}
+
+
+def addItemsToRooms(item):
+    for j in item:
+        room[item[j].room].items.append(item[j])
+
+addItemsToRooms(itemDict)
+
+
+def removeItemFromRoom(roomName, itemName):
+    room[roomName].items.remove(item[itemName])
+
+
+# Terminal colors
+boldRed = '\x1b[1;31;40m'
+lightRed = '\x1b[0;31;40m'
+boldYellow = '\x1b[1;33;40m'
+lightYellow = '\x1b[0;33;40m'
+lightBlue = '\x1b[0;36;40m'
+boldBlue = '\x1b[1;36;40m'
+lightWhite = '\x1b[0;37;40m'
+endColor = '\x1b[0m'
+
 #
 # Main
 #
 
 # Make a new player object that is currently in the 'outside' room.
-inputName = input('\x1b[1;33;40m' + "Please player's name: " + '\x1b[0m')
+inputName = input(boldYellow + "Please input player's name: ")
 player = Player(inputName, room['outside'])
-print('\x1b[0;36;40m' + "\n\n****************************************************" + '\x1b[0m' + "\n")
-print('\x1b[0;36;40m' + f"Welcome {player.name}" + '\x1b[0m' + "\n")
+print(lightBlue + "\n\n****************************************************\n")
+print(lightBlue + f"Welcome {player.name}" + "\n")
+print(lightWhite + art[player.current_room.name])
+print(boldBlue + f"\n{player.current_room.name}")
+print(boldBlue + f"{player.current_room.description}" + "\n")
+
 
 # Write a loop that:
 #
@@ -57,58 +93,77 @@ print('\x1b[0;36;40m' + f"Welcome {player.name}" + '\x1b[0m' + "\n")
 # If the user enters "q", quit the game.
 
 
-cmds = [
-    "n", "s", "e", "w", 
+cmdsDirection = [
+    "n", "s", "e", "w",
     "N", "S", "E", "W",
     "North", "South", "East", "West",
     "north", "south", "east", "west"]
 
+cmdsAction = ["get", "take", "inspect", "drop", "remove", "i", "inventory"]
+
+
 def direction(player, cmd):
-    if cmd == "n" or cmd == "N" or cmd == "North" or cmd == "north":
+    if cmd[0] in ["n", "N", "North", "north"]:
         if player.current_room.n_to:
             dir = "Go North!"
             player.current_room = player.current_room.n_to
         else:
-            return print('\x1b[0;33;40m' +"I'm sorry you can't go North." + '\x1b[0m')
-    elif cmd == "s" or cmd == "S" or cmd == "South" or cmd == "south":
+            return print(lightYellow + "I'm sorry you can't go North.")
+    elif cmd[0] in ["s", "S", "South", "south"]:
         if player.current_room.s_to:
             dir = "Go South!"
             player.current_room = player.current_room.s_to
         else:
-            return print('\x1b[0;33;40m' + "I'm sorry you can't go South." + '\x1b[0m')
-    elif cmd == "e" or cmd == "E" or cmd == "East" or cmd == "east":
+            return print(lightYellow + "I'm sorry you can't go South.")
+    elif cmd[0] in ["e", "E", "East", "east"]:
         if player.current_room.e_to:
             dir = "Go East!"
             player.current_room = player.current_room.e_to
         else:
-            return print('\x1b[0;33;40m' + "I'm sorry you can't go East." + '\x1b[0m')
-    elif cmd == "w" or cmd == "W" or cmd == "West" or cmd == "west":
+            return print(lightYellow + "I'm sorry you can't go East.")
+    elif cmd[0] in ["w", "W", "West", "west"]:
         if player.current_room.w_to:
             dir = "Go West!"
             player.current_room = player.current_room.w_to
         else:
-            return print('\x1b[0;33;40m' + "I'm sorry you can't go West." + '\x1b[0m')
+            return print(lightYellow + "I'm sorry you can't go West.")
     else:
-        return print('\x1b[0;33;40m' + "I did not understand that command" + '\x1b[0m')
-    return print('\x1b[0;33;40m' + dir + '\x1b[0m' + "\n")
+        return print(lightYellow + "I did not understand that command")
+    return [
+        print(lightYellow + dir + "\n"),
+        print(lightWhite + art[player.current_room.name]),
+        print(boldBlue + f"{player.current_room.name}"),
+        print(boldBlue + f"{player.current_room.description}" + "\n")
+        ]
 
 
 while True:
-        print(art[player.current_room.name])
-        print('\x1b[1;34;40m' + f"{player.current_room.name}" + '\x1b[0m')
-        print('\x1b[1;34;40m' + f"{player.current_room.description}" + '\x1b[0m' + "\n")
+        print(lightRed + "Items in room are: " + f"{player.current_room.items}")
         print(
-            '\x1b[1;31;40m' +
+            boldRed +
             "Exits are:",
             'North' if player.current_room.n_to else '',
             'South' if player.current_room.s_to else '',
             'East' if player.current_room.e_to else '',
-            'West' if player.current_room.w_to else '' + '\x1b[0m')
-        print('\x1b[0;36;40m' + "****************************************************" + '\x1b[0m')
-        cmd = input('\x1b[1;33;40m' + "Please input command: " + '\x1b[0m')
-        if cmd == "q":
+            'West' if player.current_room.w_to else '')
+        print(lightBlue + "****************************************************")
+        cmd = ' '.join(input(boldYellow + "Please input command: ").split()).split(" ")
+        if cmd[0] == "q":
             break
-        else:
+        elif cmd[0] in cmdsDirection:
             direction(player, cmd)
+        elif cmd[0] in cmdsAction:
+            if cmd[0] in ['get', 'take']:
+                player.addItemToPlayer(itemDict[cmd[1]])
+                player.current_room.removeItem(itemDict[cmd[1]])
+            elif cmd[0] in ["drop", "remove"]:
+                player.removeItemToPlayer(itemDict[cmd[1]])
+            elif cmd[0] in ["i", "inventory"]:
+                player.getIventory()
+            else:
+                print(f"I didn't get that")
+        else:
+            print(f'That is not a command')
 
-print("Thank you for playing")
+
+print("Thank you for playing" + endColor)
